@@ -1,0 +1,20 @@
+{
+  "name": "typescript-fsa-factory",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./build",
+  "typings": "./src/index.ts",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "typescript-fsa": "^3.0.0"
+  },
+  "devDependencies": {
+    "@babel/runtime": "^7.10.5",
+    "typescript": "^3.9.7"
+  },
+  "scripts": {
+    "postinstall": "tsc -b",
+    "build": "tsc -b",
+    "watch": "tsc -b -w"
+  }
+}
