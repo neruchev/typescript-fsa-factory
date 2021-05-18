@@ -52,7 +52,12 @@ export default <Endpoints extends IDictionary<string>, Extra = undefined>(
           ...options,
           ...config,
           ...(withBody
-            ? { data: { ...options.data, ...payload } }
+            ? {
+                data:
+                  payload instanceof FormData
+                    ? payload
+                    : { ...options.data, ...payload },
+              }
             : { params: { ...options.params, ...payload } }),
           extra: undefined,
         }),
