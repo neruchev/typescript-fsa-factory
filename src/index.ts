@@ -5,7 +5,7 @@ export interface IDictionary<T> {
   readonly [index: string]: T;
 }
 
-export type BaseOptions = Omit<AxiosRequestConfig, 'url' | 'method'>;
+export type BaseOptions = Omit<AxiosRequestConfig, 'method'>;
 
 export type ExtraOptions<T> = T extends object ? { extra: T } : {};
 

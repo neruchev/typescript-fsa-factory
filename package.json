@@ -1,6 +1,6 @@
 {
   "name": "typescript-fsa-factory",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "license": "MIT",
   "main": "./build",
   "typings": "./src/index.ts",
@@ -15,5 +15,6 @@
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w"
-  }
+  },
+  "files": ["build", "src"]
 }
