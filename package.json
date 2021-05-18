@@ -5,7 +5,7 @@
   "main": "./build",
   "typings": "./src/index.ts",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "typescript-fsa": "^3.0.0"
   },
   "devDependencies": {
@@ -16,5 +16,8 @@
     "build": "tsc -b",
     "watch": "tsc -b -w"
   },
-  "files": ["build", "src"]
+  "files": [
+    "build",
+    "src"
+  ]
 }
