@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import actionCreatorFactory from 'typescript-fsa';
 
+export { isType } from 'typescript-fsa';
+
 export interface IDictionary<T> {
   readonly [index: string]: T;
 }
