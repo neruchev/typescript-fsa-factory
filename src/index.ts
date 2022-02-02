@@ -1,69 +1,93 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
-import actionCreatorFactory from 'typescript-fsa';
+import { actionCreatorFactory } from 'typescript-fsa';
+
+import { ActionCreatorAsync } from './types';
 
 export { isType } from 'typescript-fsa';
 
-export interface IDictionary<T> {
-  readonly [index: string]: T;
+export interface Endpoints {
+  readonly [index: string]: string;
 }
 
-export type BaseOptions = Omit<AxiosRequestConfig, 'method'>;
+export type TypescriptFSAOptions = {
+  prefix?: string | null;
+  defaultIsError?: (payload: any) => boolean;
+};
 
-export type ExtraOptions<T> = T extends object ? { extra: T } : {};
+export type AxiosOptions = Omit<AxiosRequestConfig, 'method'>;
 
 export type EndpointOptions<Endpoints> = {
   url: Endpoints[keyof Endpoints];
   method: Method;
 };
 
-const methodsWithBody = ['post', 'put', 'patch'];
-const actionCreator = actionCreatorFactory();
+type Config<Meta = any> = {
+  meta?: Meta;
+  axios?: AxiosOptions;
+};
 
-export default <Endpoints extends IDictionary<string>, Extra = undefined>(
+const methodsWithBody = ['post', 'put', 'patch'];
+
+export default (
   endpoints: Endpoints,
-  globalConfig?: Partial<ExtraOptions<Partial<Extra>>> & BaseOptions
+  globalConfig: Config & TypescriptFSAOptions = {}
 ) => {
+  const actionCreator = actionCreatorFactory(
+    globalConfig?.prefix || null,
+    globalConfig?.defaultIsError
+  );
+
   const events: Array<keyof Endpoints> = Object.keys(endpoints);
 
-  const actionCreatorAsyncWithHandler = <Params, Result, Error = {}>(
-    localConfig: ExtraOptions<Extra> & BaseOptions & EndpointOptions<Endpoints>
+  const actionCreatorAsyncWithHandler = <
+    Params,
+    Result,
+    Error = {},
+    Meta = void
+  >(
+    localConfig: Config<Meta> & EndpointOptions<Endpoints>
   ) => {
-    const extra: ExtraOptions<Extra> = {
-      ...((globalConfig && (globalConfig as any).extra) || {}),
-      ...((localConfig as any).extra || {}),
-    };
+    const withBody = methodsWithBody.includes(localConfig.method.toLowerCase());
 
-    const options = {
-      ...globalConfig,
-      ...localConfig,
-      extra,
-    };
+    const event = events.find((key) => endpoints[key] === localConfig.url);
+    const eventName = `${event}_${localConfig.method}`.toUpperCase();
 
-    const withBody = methodsWithBody.includes(options.method.toLowerCase());
+    const actionCreatorAsync: ActionCreatorAsync<Params, Result, Error, Meta> =
+      actionCreator.async as any;
 
-    const event = events.find((key) => endpoints[key] === options.url);
-    const eventName = `${event}_${options.method}`.toUpperCase();
+    const metaParams = Object.assign({}, globalConfig.meta, localConfig.meta);
+    const axiosParams = Object.assign(
+      {},
+      globalConfig.axios,
+      localConfig.axios
+    );
 
     return {
-      ...actionCreator.async<Params, Result, Error>(eventName),
+      ...actionCreatorAsync(eventName, metaParams),
       handler: async (
         payload: Params,
-        config?: BaseOptions
+        config?: AxiosOptions
       ): Promise<AxiosResponse<Result | Error>> =>
         axios({
-          ...options,
+          ...axiosParams,
+          url: localConfig.url,
+          method: localConfig.method,
           ...config,
           ...(withBody
             ? {
                 data:
                   payload instanceof FormData
                     ? payload
-                    : { ...options.data, ...payload },
+                    : { ...axiosParams.data, ...payload },
               }
-            : { params: { ...options.params, ...payload } }),
-          extra: undefined,
+            : { params: { ...axiosParams.params, ...payload } }),
         }),
-      options,
+      options: {
+        ...globalConfig,
+        ...localConfig,
+        meta: metaParams,
+        axios: axiosParams,
+      },
     };
   };
 
@@ -97,9 +121,9 @@ export default <Endpoints extends IDictionary<string>, Extra = undefined>(
   };
 
   return {
-    actionCreator,
-    actionCreatorAsync: actionCreator.async,
-    actionCreatorAsyncWithHandler,
+    actionCreator: Object.assign(actionCreator, {
+      asyncWithHandler: actionCreatorAsyncWithHandler,
+    }),
     registerAsyncActions,
   };
 };
