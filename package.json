@@ -1,8 +1,8 @@
 {
   "name": "typescript-fsa-factory",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "license": "MIT",
-  "main": "./build",
+  "main": "./build/src",
   "typings": "./src/index.ts",
   "dependencies": {
     "axios": "^0.27.2",
@@ -21,7 +21,7 @@
     "test": "jest"
   },
   "files": [
-    "build",
+    "build/src",
     "src"
   ]
 }
