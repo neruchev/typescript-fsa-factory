@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import actionCreatorFactory from 'typescript-fsa';
 
+export { isType } from 'typescript-fsa';
+
 export interface IDictionary<T> {
   readonly [index: string]: T;
 }
@@ -39,7 +41,7 @@ export default <Endpoints extends IDictionary<string>, Extra = undefined>(
 
     const withBody = methodsWithBody.includes(options.method.toLowerCase());
 
-    const event = events.find((key) => endpoints[key] === options.url);
+    const event = String(events.find((key) => endpoints[key] === options.url));
     const eventName = `${event}_${options.method}`.toUpperCase();
 
     return {
