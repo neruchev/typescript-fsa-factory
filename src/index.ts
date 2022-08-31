@@ -62,7 +62,7 @@ export default <Endpoints extends IDictionary<string>, Extra = undefined>(
               }
             : { params: { ...options.params, ...payload } }),
           extra: undefined,
-        } as AxiosRequestConfig),
+        } as never),
       options,
     };
   };
