@@ -1,6 +1,6 @@
 {
   "name": "typescript-fsa-factory",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "license": "MIT",
   "main": "./build/src",
   "typings": "./src/index.ts",
