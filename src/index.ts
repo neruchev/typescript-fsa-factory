@@ -7,7 +7,7 @@ export interface IDictionary<T> {
   readonly [index: string]: T;
 }
 
-export type BaseOptions = Omit<AxiosRequestConfig, 'method'>;
+export type BaseOptions = AxiosRequestConfig;
 
 export type ExtraOptions<T> = T extends object ? { extra: T } : {};
 
@@ -39,8 +39,6 @@ export default <Endpoints extends IDictionary<string>, Extra = undefined>(
       extra,
     };
 
-    const withBody = methodsWithBody.includes(options.method.toLowerCase());
-
     const event = String(events.find((key) => endpoints[key] === options.url));
     const eventName = `${event}_${options.method}`.toUpperCase();
 
@@ -49,8 +47,11 @@ export default <Endpoints extends IDictionary<string>, Extra = undefined>(
       handler: async (
         payload: Params,
         config?: BaseOptions
-      ): Promise<AxiosResponse<Result | Error>> =>
-        axios({
+      ): Promise<AxiosResponse<Result | Error>> => {
+        const method = (config?.method ?? options.method).toLowerCase();
+        const withBody = methodsWithBody.includes(method);
+
+        return axios({
           ...options,
           ...config,
           ...(withBody
@@ -62,7 +63,8 @@ export default <Endpoints extends IDictionary<string>, Extra = undefined>(
               }
             : { params: { ...options.params, ...payload } }),
           extra: undefined,
-        } as never),
+        } as never);
+      },
       options,
     };
   };
